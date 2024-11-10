@@ -51,62 +51,20 @@ regd_users.post("/login", (req, res) => {
 });
 
 // Add a book review
-/*
-regd_users.put('/auth/review/:isbn', (req, res) => {
-  // Extract ISBN parameter from request URL
-  const isbn = parseInt( req.params.isbn );
-  let book = books[isbn];
-
-  if( book ) {  //- Check if book exists
-    let review = req.body.review;
-
-    if( review ) {
-      book["reviews"] = review;
-      books[isbn] = book;  // Update review details in 'books' object
-      res.send(`book with the ISBN ${isbn} updated.`);
-    } else {
-      //- Respond if review is not specified
-      res.send("A book review must be specified!");  
-    }
-
-  } else {
-    // Respond if book with specified ISBN is not found
-    res.send("Unable to find book!");
-  }
-});
-*/
-
-regd_users.put("/review", (req, res) => {
-  return res.status(404).json({message: "book not found"});
-});
-
 regd_users.put("/auth/review/:isbn", (req, res) => {
-  //Write your code here
-  const isbn = parseInt( req.params.isbn );
-  const { review } = req.body;
-  let token = req.session.authentication.accessToken;
-
-  if(!token){
-    return res.status(404).json({message: "User not authenticated"});
+  const isbn = req.params.isbn;
+  const review = req.body.review;
+  const username = req.session.authorization.username;
+  if (books[isbn]) {
+      let book = books[isbn];
+      book.reviews[username] = review;
+      return res.status(200).send("Review successfully posted");
   }
-
-  try {
-    let decoded = jwt.verify(token, 'access');
-    const username = decoded.username;
-
-    if(!books[isbn]){
-      return res.status(404).json({message: "book not found"});
-    }
-    books[isbn].reviews[username] = review;
-    const rev =books[isbn].reviews[username];
-    return res.status(200).json({message: "Review addedd successfully", rev});
-
-  } catch (err) {
-  return res.status(401).json({message: "Invalid token"});
-    
+  else {
+      return res.status(404).json({message: `ISBN ${isbn} not found`});
   }
-
 });
+
 
 // DELETE request: Delete a book by ISBN id
 regd_users.delete("/auth/review/:isbn", (req, res) => {

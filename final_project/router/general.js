@@ -68,7 +68,7 @@ public_users.get('/review/:isbn',function (req, res) {
   if(books[isbn] === undefined) {
     return( res.status(401).json({message: "ISBN number not found on books db"}));
   }
-  res.send( books[isbn] );  
+  res.send( books[isbn]{"reviews"} );  
 });
 
 module.exports.general = public_users;
